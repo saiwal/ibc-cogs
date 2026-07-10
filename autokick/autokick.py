@@ -55,10 +55,10 @@ class AutoKick(commands.Cog):
         cutoff = discord.utils.utcnow() - timedelta(days=days)
         log_channel = guild.get_channel(settings["log_channel_id"]) if settings["log_channel_id"] else None
 
-        # Snapshot member list since kicking mutates guild.members
-        members = list(guild.members)
-
-        for member in members:
+        # Fetch members directly from the API instead of relying on the gateway
+        # cache — guild.members can silently miss members who haven't been
+        # active/cached since the bot last started, especially older joins.
+        async for member in guild.fetch_members(limit=None):
             if member.bot:
                 continue
             if role in member.roles:
@@ -170,6 +170,32 @@ class AutoKick(commands.Cog):
         embed.add_field(name="Days before kick", value=str(settings["days"]))
         embed.add_field(name="Log channel", value=log_channel.mention if log_channel else "Not set")
         embed.add_field(name="DM before kick", value=str(settings["dm_enabled"]))
+        await ctx.send(embed=embed)
+
+    @autokick.command(name="checkuser")
+    async def autokick_checkuser(self, ctx: commands.Context, member: discord.Member):
+        """Debug: show what AutoKick sees for a specific member."""
+        settings = await self.config.guild(ctx.guild).all()
+        role = ctx.guild.get_role(settings["role_id"]) if settings["role_id"] else None
+
+        # Fetch fresh from the API to rule out cache issues
+        try:
+            fresh = await ctx.guild.fetch_member(member.id)
+        except discord.NotFound:
+            await ctx.send("This member doesn't appear to be in the server according to the API.")
+            return
+
+        has_role = role in fresh.roles if role else None
+        joined_str = discord.utils.format_dt(fresh.joined_at, "F") if fresh.joined_at else "Unknown"
+        days_in = (discord.utils.utcnow() - fresh.joined_at).days if fresh.joined_at else "N/A"
+
+        embed = discord.Embed(title=f"AutoKick check: {fresh}", color=await ctx.embed_color())
+        embed.add_field(name="Joined at", value=joined_str, inline=False)
+        embed.add_field(name="Days since joining", value=str(days_in))
+        embed.add_field(name="Has verified role?", value=str(has_role))
+        embed.add_field(name="Would be kicked next run?", value=str(
+            has_role is False and isinstance(days_in, int) and days_in >= settings["days"]
+        ))
         await ctx.send(embed=embed)
 
     @autokick.command(name="checknow")
