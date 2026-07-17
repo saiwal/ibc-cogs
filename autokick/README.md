@@ -1,6 +1,6 @@
 # AutoKick
 
-Automatically kicks members who never receive a designated "verified" role (e.g. `Member`) within a configurable number of days after joining.
+Automatically kicks members who never receive any of one or more designated "verified" roles (e.g. `Member`) within a configurable number of days after joining.
 
 Built for servers that use a ticket-based approval/verification flow (e.g. [AAA3A's Tickets cog](https://github.com/AAA3A-AAA3A/AAA3A-cogs)) where staff manually grant a role once someone is approved. AutoKick doesn't hook into the ticket system directly — it just watches for the presence of the role, so it works with any verification method that ends in "give the user a role."
 
@@ -8,7 +8,7 @@ Built for servers that use a ticket-based approval/verification flow (e.g. [AAA3
 
 Every 30 minutes (and on-demand via `checknow`), the cog fetches the **live member list directly from Discord's API** (not the gateway cache, to avoid missing inactive/older members) and checks each non-bot member:
 
-- Do they have the configured verified role? → skip.
+- Do they have any of the configured verified roles? → skip.
 - Have they been in the server for fewer than the configured number of days? → skip.
 - Otherwise → optionally DM them a notice, then kick, then log it to your configured log channel.
 
@@ -26,7 +26,9 @@ All commands are under `[p]autokick` and require the **Kick Members** permission
 
 | Command | Description |
 |---|---|
-| `[p]autokick role <role>` | Set the role that marks a member as verified. |
+| `[p]autokick role add <role>` | Add a role that marks a member as verified. Members with *any* verified role are skipped. |
+| `[p]autokick role remove <role>` | Remove a role from the verified roles list. |
+| `[p]autokick role list` | List the currently configured verified roles. |
 | `[p]autokick days <number>` | Days a member has to get verified before being kicked (default: 3). |
 | `[p]autokick toggle <true/false>` | Enable or disable auto-kicking. |
 | `[p]autokick logchannel [channel]` | Set (or clear, if omitted) a channel for kick logs. |
@@ -39,7 +41,8 @@ All commands are under `[p]autokick` and require the **Kick Members** permission
 ### Example setup
 
 ```
-[p]autokick role @Member
+[p]autokick role add @Member
+[p]autokick role add @Trusted
 [p]autokick days 3
 [p]autokick logchannel #mod-log
 [p]autokick dmtoggle true

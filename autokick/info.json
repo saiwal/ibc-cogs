@@ -1,9 +1,9 @@
 {
     "author": ["Hello + Claude"],
     "min_bot_version": "3.5.0",
-    "description": "Kicks members who haven't received a designated 'verified' role (e.g. Member) within a configurable number of days after joining.",
+    "description": "Kicks members who haven't received any of one or more designated 'verified' roles (e.g. Member) within a configurable number of days after joining.",
     "hidden": false,
-    "install_msg": "Thanks for installing AutoKick! Run `[p]autokick set role @Member` and `[p]autokick set days 3` to get started, then `[p]autokick set toggle true` to enable it.",
+    "install_msg": "Thanks for installing AutoKick! Run `[p]autokick role add @Member` and `[p]autokick days 3` to get started, then `[p]autokick toggle true` to enable it.",
     "short": "Kick members who never get verified within N days of joining.",
     "tags": ["moderation", "verification", "kick"],
     "type": "COG"

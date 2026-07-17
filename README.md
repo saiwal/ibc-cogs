@@ -14,7 +14,7 @@ A collection of custom [Red-DiscordBot](https://github.com/Cog-Creators/Red-Disc
 
 | Cog | Description |
 |---|---|
-| [autokick](./autokick) | Kicks members who never receive a designated "verified" role within N days of joining. Built for servers using a ticket-based approval flow. |
+| [autokick](./autokick) | Kicks members who never receive any of one or more designated "verified" roles within N days of joining. Built for servers using a ticket-based approval flow. |
 
 ## License
 
